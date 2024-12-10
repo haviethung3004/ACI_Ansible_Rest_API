@@ -1,11 +1,15 @@
 ---
 - name: Create a tenant on ACI
-  hosts: hostlocal
+  hosts: localhost
   connection: local
   gather_facts: false
-  vars_files:
-    - vars.yaml
+  vars:
+    template_file: 'Tenant_Template.j2'
+    output_file: 'Tenant_Rendered.j2'
   tasks:
+    - name: Import Tenant Vars File
+      ansible.builtin.include_vars:
+        file: 'tenant_vars.yaml'
     - name: Login to APIC and get authentication cookie
       uri:
         url: "https://{{ aci_host }}/api/aaaLogin.json"
@@ -29,22 +33,47 @@
       set_fact:
         apic_cookie: "{{ login_result.cookies['APIC-cookie'] }}"
     
-    - name: Create a New tenant
+    # - name: Create a New tenant
+    #   uri:
+    #     url: "https://192.168.1.250/api/node/mo/uni/tn-{{ tenant_name }}.json"
+    #     method: POST
+    #     headers:
+    #       Content-Type: "application/json"
+    #       Cookie: "APIC-Cookie={{ apic_cookie }}"
+    #     body: |
+    #       {
+    #         "fvTenant": {
+    #           "attributes": {
+    #             "name": "{{ tenant_name }}",
+    #             "descr": "{{ tenant_description }}"
+    #           }
+    #         }
+    #       }
+    #     body_format: json
+    #     validate_certs: false
+    #   register: result
+    - name: Render Tenant Template
+      template:
+        src: "Tenant_Template.j2"  # Path to your Jinja2 template
+        dest: "tenant_request.json"  # Rendered JSON output
+      vars:
+        tenant_name: "{{ tenant_name }}"
+        tenant_description: "{{ tenant_description }}"
+        bd_name: "{{ bd_name }}"
+        vrf_name: "{{ vrf_name }}"
+
+    - name: Create Tenant on APIC
       uri:
-        url: "https://192.168.1.250/api/node/mo/uni/tn-{{ tenant_name }}.json"
+        url: "https://{{ aci_host }}/api/node/mo/uni/tn-{{ tenant_name }}.json"
         method: POST
         headers:
           Content-Type: "application/json"
           Cookie: "APIC-Cookie={{ apic_cookie }}"
-        body: |
-          {
-            "fvTenant": {
-              "attributes": {
-                "name": "{{ tenant_name }}",
-                "descr": "{{ tenant_description }}"
-              }
-            }
-          }
+        body: "{{ lookup('file', 'tenant_request.json') }}"  # Read the rendered JSON file
         body_format: json
         validate_certs: false
-      register: result
+      register: tenant_result
+
+    - name: Show Tenant creation response
+      debug:
+        var: tenant_result

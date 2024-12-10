@@ -1,0 +1,43 @@
+{
+  "fvTenant": {
+    "attributes": {
+      "dn": "uni/tn-Testing_Ansible",
+      "status": "modified"
+    },
+    "children": [
+      {
+        "fvBD": {
+          "attributes": {
+            "arpFlood": "true",
+            "dn": "uni/tn-Testing_Ansible/Ansible_BridgeDomain",
+            "name": "Ansible_vrf",
+            "rn": "Ansible_BridgeDomain",
+            "status": "created"
+          },
+          "children": [
+            {
+              "fvRsCtx": {
+                "attributes": {
+                  "status": "created,modified",
+                  "tnFvCtxName": "Ansible_vrf"
+                },
+                "children": []
+              }
+            }
+          ]
+        }
+      },
+      {
+        "fvCtx": {
+          "attributes": {
+            "dn": "uni/tn-Testing_Ansible/ctx-Ansible_vrf",
+            "name": "Ansible_vrf",
+            "rn": "ctx-Ansible_vrf",
+            "status": "created"
+          },
+          "children": []
+        }
+      }
+    ]
+  }
+}

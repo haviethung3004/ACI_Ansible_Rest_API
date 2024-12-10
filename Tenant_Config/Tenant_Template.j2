@@ -1,0 +1,43 @@
+{
+  "fvTenant": {
+    "attributes": {
+      "dn": "uni/tn-{{ tenant_name }}",
+      "status": "modified"
+    },
+    "children": [
+      {
+        "fvBD": {
+          "attributes": {
+            "arpFlood": "true",
+            "dn": "uni/tn-{{ tenant_name }}/{{ bd_name }}",
+            "name": "{{ vrf_name }}",
+            "rn": "{{ bd_name }}",
+            "status": "created"
+          },
+          "children": [
+            {
+              "fvRsCtx": {
+                "attributes": {
+                  "status": "created,modified",
+                  "tnFvCtxName": "{{ vrf_name }}"
+                },
+                "children": []
+              }
+            }
+          ]
+        }
+      },
+      {
+        "fvCtx": {
+          "attributes": {
+            "dn": "uni/tn-{{ tenant_name }}/ctx-{{ vrf_name }}",
+            "name": "{{ vrf_name }}",
+            "rn": "ctx-{{ vrf_name }}",
+            "status": "created"
+          },
+          "children": []
+        }
+      }
+    ]
+  }
+}
