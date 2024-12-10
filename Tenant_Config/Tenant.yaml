@@ -1,12 +1,14 @@
 ---
 - name: Create a tenant on ACI
-  hosts: aci
+  hosts: hostlocal
   connection: local
   gather_facts: false
+  vars_files:
+    - vars.yaml
   tasks:
     - name: Login to APIC and get authentication cookie
       uri:
-        url: "https://192.168.1.250/api/aaaLogin.json"
+        url: "https://{{ aci_host }}/api/aaaLogin.json"
         method: POST
         headers:
           Content-Type: "application/json"
@@ -14,8 +16,8 @@
           {
             "aaaUser": {
               "attributes": {
-                "name": "admin",
-                "pwd": "12345678"
+                "name": "{{ aci_username }}",
+                "pwd": "{{ aci_password }}"
               }
             }
           }
@@ -29,7 +31,7 @@
     
     - name: Create a New tenant
       uri:
-        url: "https://192.168.1.250/api/node/mo/uni/tn-Testing_Ansible.json"
+        url: "https://192.168.1.250/api/node/mo/uni/tn-{{ tenant_name }}.json"
         method: POST
         headers:
           Content-Type: "application/json"
@@ -38,15 +40,11 @@
           {
             "fvTenant": {
               "attributes": {
-                "name": "Testing_Ansible",
-                "descr": "the new tenant is created by Ansible"
+                "name": "{{ tenant_name }}",
+                "descr": "{{ tenant_description }}"
               }
             }
           }
         body_format: json
         validate_certs: false
       register: result
-
-    - name: Show response
-      debug:
-        var: result
