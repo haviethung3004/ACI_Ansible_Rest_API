@@ -1,0 +1,52 @@
+---
+- name: Create a tenant on ACI
+  hosts: aci
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Login to APIC and get authentication cookie
+      uri:
+        url: "https://192.168.1.250/api/aaaLogin.json"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "aaaUser": {
+              "attributes": {
+                "name": "admin",
+                "pwd": "12345678"
+              }
+            }
+          }
+        body_format: json
+        validate_certs: false
+      register: login_result
+
+    - name: Extract APIC Cookie
+      set_fact:
+        apic_cookie: "{{ login_result.cookies['APIC-cookie'] }}"
+    
+    - name: Create a New tenant
+      uri:
+        url: "https://192.168.1.250/api/node/mo/uni/tn-Testing_Ansible.json"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+          Cookie: "APIC-Cookie={{ apic_cookie }}"
+        body: |
+          {
+            "fvTenant": {
+              "attributes": {
+                "name": "Testing_Ansible",
+                "descr": "the new tenant is created by Ansible"
+              }
+            }
+          }
+        body_format: json
+        validate_certs: false
+      register: result
+
+    - name: Show response
+      debug:
+        var: result
