@@ -12,4 +12,4 @@ tenant_description: "The tenant is created by Ansible"
 vrf_name: "Ansible_vrf"
 
 # bd info
-bd_name: "Ansible_BridgeDomain"
+bd_name: "Ansible_BD"

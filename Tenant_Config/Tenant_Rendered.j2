@@ -2,7 +2,7 @@
   "payload": {
     "fvTenant": {
       "attributes": {
-        "dn": "uni/tn-{{ tenant_name }}",
+        "dn": "uni/tn-Testing_Ansible",
         "status": "modified"
       },
       "children": [
@@ -10,9 +10,9 @@
           "fvBD": {
             "attributes": {
               "arpFlood": "true",
-              "dn": "uni/tn-{{ tenant_name }}/BD-{{ bd_name }}",
-              "name": "{{ bd_name }}",
-              "rn": "BD-{{ bd_name }}",
+              "dn": "uni/tn-Testing_Ansible/BD-Ansible_BD",
+              "name": "Ansible_BD",
+              "rn": "BD-Ansible_BD",
               "status": "created"
             },
             "children": [
@@ -20,7 +20,7 @@
                 "fvRsCtx": {
                   "attributes": {
                     "status": "created,modified",
-                    "tnFvCtxName": "{{ vrf_name }}"
+                    "tnFvCtxName": "Ansible_vrf"
                   },
                   "children": []
                 }
@@ -31,9 +31,9 @@
         {
           "fvCtx": {
             "attributes": {
-              "dn": "uni/tn-{{ tenant_name }}/ctx-{{ vrf_name }}",
-              "name": "{{ vrf_name }}",
-              "rn": "ctx-{{ vrf_name }}",
+              "dn": "uni/tn-Testing_Ansible/ctx-Ansible_vrf",
+              "name": "Ansible_vrf",
+              "rn": "ctx-Ansible_vrf",
               "status": "created"
             },
             "children": []

@@ -10,6 +10,17 @@
     - name: Import Tenant Vars File
       ansible.builtin.include_vars:
         file: 'tenant_vars.yaml'
+      
+    - name: Render Tenant Template
+      template:
+        src: "{{ template_file }}"  # Path to your Jinja2 template
+        dest: "{{ output_file }}"  # Rendered JSON output
+      vars:
+        tenant_name: "{{ tenant_name }}"
+        tenant_description: "{{ tenant_description }}"
+        bd_name: "{{ bd_name }}"
+        vrf_name: "{{ vrf_name }}"
+
     - name: Login to APIC and get authentication cookie
       uri:
         url: "https://{{ aci_host }}/api/aaaLogin.json"
@@ -32,35 +43,16 @@
     - name: Extract APIC Cookie
       set_fact:
         apic_cookie: "{{ login_result.cookies['APIC-cookie'] }}"
-    
-    # - name: Create a New tenant
-    #   uri:
-    #     url: "https://192.168.1.250/api/node/mo/uni/tn-{{ tenant_name }}.json"
-    #     method: POST
-    #     headers:
-    #       Content-Type: "application/json"
-    #       Cookie: "APIC-Cookie={{ apic_cookie }}"
-    #     body: |
-    #       {
-    #         "fvTenant": {
-    #           "attributes": {
-    #             "name": "{{ tenant_name }}",
-    #             "descr": "{{ tenant_description }}"
-    #           }
-    #         }
-    #       }
-    #     body_format: json
-    #     validate_certs: false
-    #   register: result
-    - name: Render Tenant Template
-      template:
-        src: "Tenant_Template.j2"  # Path to your Jinja2 template
-        dest: "tenant_request.json"  # Rendered JSON output
-      vars:
-        tenant_name: "{{ tenant_name }}"
-        tenant_description: "{{ tenant_description }}"
-        bd_name: "{{ bd_name }}"
-        vrf_name: "{{ vrf_name }}"
+            
+    - name: Load and parse POST content 
+      vars: 
+        parsed_file: "{{ lookup('file', output_file) | from_json }}"  # Parse the content and set it to parsed_file
+      ansible.builtin.set_fact:
+        payload: "{{ parsed_file.payload }}"  # Set 'payload' from parsed_file
+
+    - name: Debug payload
+      debug:
+        msg: "{{ payload }}"
 
     - name: Create Tenant on APIC
       uri:
@@ -69,7 +61,7 @@
         headers:
           Content-Type: "application/json"
           Cookie: "APIC-Cookie={{ apic_cookie }}"
-        body: "{{ lookup('file', 'tenant_request.json') }}"  # Read the rendered JSON file
+        body: "{{ payload }}"
         body_format: json
         validate_certs: false
       register: tenant_result
