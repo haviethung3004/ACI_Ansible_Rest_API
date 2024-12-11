@@ -43,16 +43,12 @@
     - name: Extract APIC Cookie
       set_fact:
         apic_cookie: "{{ login_result.cookies['APIC-cookie'] }}"
-            
+
     - name: Load and parse POST content 
       vars: 
         parsed_file: "{{ lookup('file', output_file) | from_json }}"  # Parse the content and set it to parsed_file
       ansible.builtin.set_fact:
         payload: "{{ parsed_file.payload }}"  # Set 'payload' from parsed_file
-
-    - name: Debug payload
-      debug:
-        msg: "{{ payload }}"
 
     - name: Create Tenant on APIC
       uri:
@@ -65,6 +61,7 @@
         body_format: json
         validate_certs: false
       register: tenant_result
+
 
     - name: Show Tenant creation response
       debug:

@@ -3,7 +3,7 @@
     "fvTenant": {
       "attributes": {
         "dn": "uni/tn-{{ tenant_name }}",
-        "status": "modified"
+        "status": "created,modified"
       },
       "children": [
         {
@@ -13,7 +13,7 @@
               "dn": "uni/tn-{{ tenant_name }}/BD-{{ bd_name }}",
               "name": "{{ bd_name }}",
               "rn": "BD-{{ bd_name }}",
-              "status": "created"
+              "status": "created,modified"
             },
             "children": [
               {
@@ -34,7 +34,7 @@
               "dn": "uni/tn-{{ tenant_name }}/ctx-{{ vrf_name }}",
               "name": "{{ vrf_name }}",
               "rn": "ctx-{{ vrf_name }}",
-              "status": "created"
+              "status": "created,modified"
             },
             "children": []
           }
