@@ -1,6 +1,6 @@
-# ACI Configuration Automation
+# ACI Update and Configuration Automation
 
-This repository contains automation scripts to configure and manage **Cisco ACI** (Application Centric Infrastructure) using **Ansible**.
+This repository contains automation scripts to configure and manage **Cisco ACI** (Application Centric Infrastructure) using **Ansible** from Existing Configuration.
 
 The project includes:
 
@@ -19,3 +19,4 @@ The project includes:
 
 pip install ansible
 pip install requests
+pip install jmespath
