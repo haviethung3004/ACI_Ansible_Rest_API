@@ -6,13 +6,14 @@
         "status": "created,modified"
       },
       "children": [
+        {% for bd in bds %}
         {
           "fvBD": {
             "attributes": {
               "arpFlood": "true",
-              "dn": "uni/tn-{{ tenant_name }}/BD-{{ bd_name }}",
-              "name": "{{ bd_name }}",
-              "rn": "BD-{{ bd_name }}",
+              "dn": "uni/tn-{{ tenant_name }}/BD-{{ bd.name }}",
+              "name": "{{ bd.name }}",
+              "rn": "BD-{{ bd.name }}",
               "status": "created,modified"
             },
             "children": [
@@ -24,10 +25,30 @@
                   },
                   "children": []
                 }
+              },
+              {
+                "fvSubnet": {
+                  "attributes": {
+                    "ctrl": "nd",
+                    "descr": "",
+                    "ip": "{{ bd.ip }}",
+                    "ipDPLearning": "enabled",
+                    "name": "",
+                    "nameAlias": "",
+                    "preferred": "no",
+                    "scope": "private",
+                    "userdom": ":all:",
+                    "virtual": "no",
+                    "status": "created,modified"
+                  }
+                }
               }
             ]
           }
-        },
+        }
+        {% if not loop.last %},{% endif %}
+        {% endfor %}
+        ,
         {
           "fvCtx": {
             "attributes": {

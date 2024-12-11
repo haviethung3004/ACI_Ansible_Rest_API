@@ -1,25 +1,22 @@
 ---
-- name: Create a tenant on ACI
+- name: Create or update tenant, bd, vrf on ACI
   hosts: localhost
   connection: local
   gather_facts: false
   vars:
     template_file: 'Tenant_Template.j2'
     output_file: 'Tenant_Rendered.j2'
+    aci_username: "admin"
+    aci_password: "12345678"
+    aci_host: "192.168.1.250"
   tasks:
     - name: Import Tenant Vars File
       ansible.builtin.include_vars:
-        file: 'tenant_vars.yaml'
-      
+        file: 'inventory.yaml'
     - name: Render Tenant Template
       template:
         src: "{{ template_file }}"  # Path to your Jinja2 template
         dest: "{{ output_file }}"  # Rendered JSON output
-      vars:
-        tenant_name: "{{ tenant_name }}"
-        tenant_description: "{{ tenant_description }}"
-        bd_name: "{{ bd_name }}"
-        vrf_name: "{{ vrf_name }}"
 
     - name: Login to APIC and get authentication cookie
       uri:
@@ -63,6 +60,6 @@
       register: tenant_result
 
 
-    - name: Show Tenant creation response
-      debug:
-        var: tenant_result
+    # - name: Show Tenant creation response
+    #   debug:
+    #     var: tenant_result
