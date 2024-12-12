@@ -28,7 +28,10 @@ def BD(filepath, output_file):
     with open(output_file, 'w') as out_file:
       yaml.dump(inventory, out_file, default_flow_style=False)
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
+  filepath = "/home/dsu979/Downloads/tn-Migrate1.json"
+  output = "/home/dsu979/Downloads/inventory.yaml"
+  BD(filepath,output)
 
 
     
