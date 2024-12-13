@@ -1,8 +1,15 @@
 ---
 #Here is the main playbook file, please select option what you want to configure here
-- name: Create, Update or delete configuration by Ansible
+- name: Create Or Update AAEP
   hosts: localhost
   gather_facts: false
   vars_files: '/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/AAEP_config/tests/inventory.yaml'
   roles:
     - AAEP_config
+
+- name: Create Or Update Tenant
+  hosts: localhost
+  gather_facts: false
+  vars_files: '/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/Tenant_config/tests/inventory.yaml'
+  roles:
+    - Tenant_config
