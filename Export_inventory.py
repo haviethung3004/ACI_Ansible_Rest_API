@@ -86,11 +86,51 @@ def AAEP(filepath, output_file):
     
 def Static_Port_Binding(filepath, output_file):
   with open(filepath, mode='r') as f:
-    
+    reader = json.load(f)
+    # Initialize an empty list for storing the EPGs
+    epgs = []
+# Iterate over the APIC JSON and extract the relevant details
+    for item in reader['imdata'][0]['fvTenant']['children']:
+      if 'fvAp' in item:
+        for item in item['fvAp']['children']:
+          if 'fvAEPg' in item:
+            epg = item['fvAEPg']
+            epg_name = epg['attributes']['name']
+            print(epg_name)
+            
+            # Extract VLANs and Ports using the "encap" field for VLAN information
+            vlans = {}
+            for child in epg.get('children', []):
+                if 'fvRsPathAtt' in child:
+                    port_info = child['fvRsPathAtt']['attributes']['tDn']
+                    vlan_id = child['fvRsPathAtt']['attributes']['encap']  # Extract the VLAN number
+                    
+                    # Clean up the port info and ensure correct formatting for port names
+                    # port_name = port_info.split('/')[-1]  # Extract just the interface name, e.g., "eth1/1"
+                    
+                    if vlan_id not in vlans:
+                        vlans[vlan_id] = []
+                    vlans[vlan_id].append(port_info)
+            
+            # Create the final EPG structure for the inventory
+            epgs.append({
+                'name': epg_name,
+                'vlans': [{'vlan': vlan_id, 'ports': port_info} for vlan_id, port_info in vlans.items()]
+            })
+    # Create the output dictionary
+    inventory = {
+        'epgs': epgs
+    }
+  # Output the final YAML file
+  with open(output_file, 'w') as yaml_file:
+      yaml.dump(inventory, yaml_file, default_flow_style=False, sort_keys=False)
+
+
+
 
 if __name__ == "__main__":
   filepath = "/home/dsu979/Downloads/tn-Migrate1.json"
-  output = "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/AAEP_config/tests/inventory.yaml"
-  AAEP(filepath,output)
+  output = "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/inventory.yaml"
+  Static_Port_Binding(filepath,output)
 
 
