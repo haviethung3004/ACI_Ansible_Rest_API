@@ -18,7 +18,7 @@ Before using this playbook, make sure you have the following:
 
 Clone this repository to your local machine:
 
-    git clone https://github.com/yourusername/ACI_Migration.git
+    git clone https://git.dision.office/dsu979/Ansible_ACI.git
     cd ACI_Migration/Ansible_ACI
 
 ---
