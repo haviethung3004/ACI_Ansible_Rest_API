@@ -3,7 +3,7 @@
     "fvTenant": {
       "attributes": {
         "dn": "uni/tn-{{ tenant_name }}",
-        "status": "created,modified"
+        "status": "modified"
       },
       "children": [
         {% for bd in bds %}
@@ -13,8 +13,9 @@
               "arpFlood": "true",
               "dn": "uni/tn-{{ tenant_name }}/BD-{{ bd.name }}",
               "name": "{{ bd.name }}",
+              "descr": "{{ bd.description }}",
               "rn": "BD-{{ bd.name }}",
-              "status": "created,modified"
+              "status": "{{ bd.status }}"
             },
             "children": [
               {
@@ -39,7 +40,7 @@
                     "scope": "private",
                     "userdom": ":all:",
                     "virtual": "no",
-                    "status": "created,modified"
+                    "status": "{{ bd.status }}"
                   }
                 }
               }
@@ -55,7 +56,7 @@
               "dn": "uni/tn-{{ tenant_name }}/ctx-{{ vrf_name }}",
               "name": "{{ vrf_name }}",
               "rn": "ctx-{{ vrf_name }}",
-              "status": "created,modified"
+              "status": "modified"
             },
             "children": []
           }
