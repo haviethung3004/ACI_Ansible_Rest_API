@@ -11,5 +11,5 @@ aci_password: "12345678"
 
 
 # vars/main.yml inside aaep_binding role
-template_file: "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/AAEP_config/roles/aaep_binding/templates/AAEPbindings.j2"   # Path to your Jinja2 template
-output_file: "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/AAEP_config/roles/aaep_binding/templates/AAEPbindings_Rendered.j2"  # Path where the rendered JSON will be saved
+template_file: "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/AAEP_config/templates/AAEPbindings.j2"   # Path to your Jinja2 template
+output_file: "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/AAEP_config/templates/AAEPbindings_Rendered.j2"  # Path where the rendered JSON will be saved

@@ -88,7 +88,7 @@ def AAEP(filepath, output_file):
 
 if __name__ == "__main__":
   filepath = "/home/dsu979/Downloads/tn-Migrate1.json"
-  output = "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/AAEP_config/inventory.yaml"
+  output = "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/AAEP_config/tests/inventory.yaml"
   AAEP(filepath,output)
 
 
