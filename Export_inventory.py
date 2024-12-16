@@ -1,131 +1,194 @@
-#Import json and yaml module
 import json
 import yaml
 
 
-def Networking_BD(filepath, output_file):
-  with open(f'{filepath}', mode='r') as f:
-    reader = json.load(f)
-    BDs = []
-    for item in reader['imdata'][0]['fvTenant']['children']:
-      if 'fvBD' in item:
-        bd_name =  item['fvBD']['attributes']['name']
-        unicast =  item['fvBD']['attributes']['unicastRoute']
-        desc = item['fvBD']['attributes']['descr']
-        for item in item['fvBD']['children']:
-          if 'fvSubnet' in item:
-            ip = item['fvSubnet']['attributes']['ip']
-          if 'dhcpLbl' in item:
-            dhcp_name = item['dhcpLbl']['attributes']['ip']
+def dump_to_yaml(inventory, output_file):
+    """Helper function to write inventory data to a YAML file."""
+    with open(output_file, 'w') as out_file:
+        yaml.dump(inventory, out_file, default_flow_style=False, sort_keys=False)
 
-            BDs.append({
-              'name': f"{bd_name}",
-              'unicast': f"{unicast}",
-              'ip': f"{ip}",
-              'description': f"{desc}",
-              'status': "created,modified"
-            })
+
+def Networking_BD(filepath, output_file):
+    """Process Networking BD inventory and output to YAML."""
+    with open(filepath, mode='r') as f:
+        reader = json.load(f)
+        BDs = []
+
+        # Initialize default values for tenant and vrf
+        tenant_name = "Please input your correct tenant name"
+        vrf_name = "Please input your correct vrf name"
+
+        # Try to extract tenant_name from the data
+        try:
+            tenant_name = reader['imdata'][0]['fvTenant']['attributes']['name']
+        except KeyError:
+            pass  # If tenant_name is missing, it will remain the default value
+
+        # Loop through 'fvTenant' children to find 'vrf_name'
+        for child in reader['imdata'][0]['fvTenant']['children']:
+            if 'fvCtx' in child:
+                try:
+                    vrf_name = child['fvCtx']['attributes']['name']
+                    break  # Exit loop once vrf_name is found
+                except KeyError:
+                    pass  # Continue searching if the 'vrf_name' is missing
+
+        # Iterate through the JSON data to extract BD information
+        for item in reader['imdata'][0]['fvTenant']['children']:
+            if 'fvBD' in item:
+                bd_name = item['fvBD']['attributes']['name']
+                unicast = item['fvBD']['attributes']['unicastRoute']
+                desc = item['fvBD']['attributes']['descr']
+
+                for child in item['fvBD']['children']:
+                    if 'fvSubnet' in child:
+                        ip = child['fvSubnet']['attributes']['ip']
+
+                        BDs.append({
+                            'name': bd_name,
+                            'unicast': unicast,
+                            'ip': ip,
+                            'description': desc,
+                            'status': "created,modified"
+                        })
+
     # Prepare the inventory format for Jinja template
     inventory = {
-        'tenant_name': "PLease input your correct tenant name",
-        'vrf_name': "PLease input your correct vrf name",
+        'tenant_name': tenant_name,
+        'vrf_name': vrf_name,
         'bds': BDs
-        
     }
-    #Output the inventory format for Jina template
-    with open(output_file, 'w') as out_file:
-      yaml.dump(inventory, out_file, default_flow_style=False,sort_keys=False)
+
+    # Output the inventory format for Jinja template
+    dump_to_yaml(inventory, output_file)
 
 
 def AAEP(filepath, output_file):
-  with open(filepath, mode='r') as f:
-    reader = json.load(f)
-    AAEPs = []
-    for item in reader['imdata'][0]['fvTenant']['children']:
-      if 'fvAp' in item:
-        for item in item['fvAp']['children']:
-          if 'fvAEPg' in item:
-            EPG_name = item['fvAEPg']['attributes']['name']
-            EPG_des = item['fvAEPg']['attributes']['descr']
-            EPG_alias = item['fvAEPg']['attributes']['nameAlias']
-            for item in item['fvAEPg']['children']:
-              # if 'fvRsPathAtt' in item:
-              #     # Extract encap and tDn from fvRsPathAtt
-              #     encap = item['fvRsPathAtt']['attributes'].get('encap', None)
-              #     tDn = item['fvRsPathAtt']['attributes'].get('tDn', None)
-                                
-              #     # Append to Encap and Port lists
-              #     Encap.append({'vlan': encap})
-              #     Port.append({'Port': tDn})
+    """Process AAEP inventory and output to YAML."""
+    with open(filepath, mode='r') as f:
+        reader = json.load(f)
+        AAEPs = []
+        # Initialize default values for tenant and vrf
+        tenant_name = "Please input your correct tenant name"
+        Ap_name = "Please input your correct AP name"
+        # Try to extract tenant_name from the data
+        try:
+            tenant_name = reader['imdata'][0]['fvTenant']['attributes']['name']
+        except KeyError:
+            pass
 
-                # mode = item['fvRsPathAtt']['attributes']['mode']
-              # if 'fvRsDomAtt' in item:
-              #   Phys_Dom= item['fvRsDomAtt']['attributes']['tDn']
+        # Extract AAEP information from the JSON data
+        for item in reader['imdata'][0]['fvTenant']['children']:
+            if 'fvAp' in item:
+                try:
+                    Ap_name = item['fvAp']['attributes']['name']
+                except KeyError:
+                    pass
+                for child in item['fvAp']['children']:
+                    if 'fvAEPg' in child:
+                        epg = child['fvAEPg']['attributes']
+                        epg_name = epg['name']
+                        epg_des = epg['descr']
+                        epg_alias = epg['nameAlias']
 
-              if 'fvRsBd' in item:
-                BD_name = item['fvRsBd']['attributes']['tnFvBDName']
+                        for sub_child in child['fvAEPg']['children']:
+                            if 'fvRsBd' in sub_child:
+                                bd_name = sub_child['fvRsBd']['attributes']['tnFvBDName']
 
-                AAEPs.append({
-                  'name': EPG_name,
-                  'description': EPG_des,
-                  'alias': EPG_alias,
-                  'mode': "regular",
-                  # 'Physical_Dom': Phys_Dom,
-                  'BD_name': BD_name,
-                  'status': "created,modified"
-                })
+                                AAEPs.append({
+                                    'name': epg_name,
+                                    'description': epg_des,
+                                    'alias': epg_alias,
+                                    'mode': "regular",
+                                    'BD_name': bd_name,
+                                    'status': "created,modified"
+                                })
+
     # Prepare the inventory format for Jinja template
     inventory = {
-        'ap_name': "PLease input your Application Profile",
-        'epgs': AAEPs,
-        }
+        'tenant_name': tenant_name,
+        'ap_name': Ap_name,
+        'epgs': AAEPs
+    }
 
-    #Output the inventory format for Jina template
-    with open(output_file, 'w') as out_file:
-      yaml.dump(inventory, out_file, default_flow_style=False,sort_keys=False)
-    
+    # Output the inventory format for Jinja template
+    dump_to_yaml(inventory, output_file)
+
+
 def Static_Port_Binding(filepath, output_file):
-  with open(filepath, mode='r') as f:
-    reader = json.load(f)
-    # Initialize an empty list for storing the EPGs
-    epgs = []
-# Iterate over the APIC JSON and extract the relevant details
-    for item in reader['imdata'][0]['fvTenant']['children']:
-      if 'fvAp' in item:
-        for item in item['fvAp']['children']:
-          if 'fvAEPg' in item:
-            epg = item['fvAEPg']
-            epg_name = epg['attributes']['name']
-            
-            # Extract VLANs and Ports using the "encap" field for VLAN information
-            vlans = {}
-            for child in epg.get('children', []):
-                if 'fvRsPathAtt' in child:
-                    port_info = child['fvRsPathAtt']['attributes']['tDn']
-                    vlan_id = child['fvRsPathAtt']['attributes']['encap']
-                    
-                    if vlan_id not in vlans:
-                        vlans[vlan_id] = []
-                    vlans[vlan_id].append(port_info)
-            
-            # Create the final EPG structure for the inventory
-            epgs.append({
-                'name': epg_name,
-                'vlans': [{'vlan': vlan_id, 'ports': port_info} for vlan_id, port_info in vlans.items()]
-            })
-    # Create the output dictionary
+    """Process Static Port Binding inventory and output to YAML."""
+    with open(filepath, mode='r') as f:
+        reader = json.load(f)
+        epgs = []
+        
+        # Initialize default values for tenant and vrf
+        tenant_name = "Please input your correct tenant name"
+        Ap_name = "Please input your correct AP name"
+        # Try to extract tenant_name from the data
+        try:
+            tenant_name = reader['imdata'][0]['fvTenant']['attributes']['name']
+        except KeyError:
+            pass
+
+        # Extract Static Port Binding details from the JSON data
+        for item in reader['imdata'][0]['fvTenant']['children']:
+            if 'fvAp' in item:
+                try:
+                    Ap_name = item['fvAp']['attributes']['name']
+                except KeyError:
+                    pass
+
+                for child in item['fvAp']['children']:
+                    if 'fvAEPg' in child:
+                        epg = child['fvAEPg']
+                        epg_name = epg['attributes']['name']
+
+                        vlans = {}
+                        for sub_child in epg.get('children', []):
+                            if 'fvRsPathAtt' in sub_child:
+                                port_info = sub_child['fvRsPathAtt']['attributes']['tDn']
+                                vlan_id = sub_child['fvRsPathAtt']['attributes']['encap']
+
+                                # Group ports by VLAN
+                                if vlan_id not in vlans:
+                                    vlans[vlan_id] = []
+                                vlans[vlan_id].append(port_info)
+
+                        # Add EPG to the list with VLANs and ports
+                        epgs.append({
+                            'name': epg_name,
+                            'vlans': [{'vlan': vlan_id, 'ports': port_info} for vlan_id, port_info in vlans.items()]
+                        })
+
+    # Prepare the inventory format for Jinja template
     inventory = {
-        'ap_name': 'Input your application profile',
+        'tenant_name': tenant_name,
+        'ap_name': Ap_name,
         'epgs': epgs
     }
-  # Output the final YAML file
-  with open(output_file, 'w') as yaml_file:
-      yaml.dump(inventory, yaml_file, default_flow_style=False, sort_keys=False)
+
+    # Output the inventory format for Jinja template
+    dump_to_yaml(inventory, output_file)
+
+
+
+
+
+
+def main(input_file_path):
+    """Main function to process and generate inventory files."""
+    # Export Inventory of Networking_BD
+    Networking_BD_output = 'roles/Tenant_config/tests/inventory.yaml'
+    Networking_BD(input_file_path, Networking_BD_output)
+
+    # Export Inventory of AAEP
+    AAEP_output = 'roles/AAEP_config/tests/inventory.yaml'
+    AAEP(input_file_path, AAEP_output)
+
+    # Export Inventory of Static Port Binding
+    Static_Port_Binding_output = 'roles/Port_Binding_config/tests/inventory.yaml'
+    Static_Port_Binding(input_file_path, Static_Port_Binding_output)
 
 
 if __name__ == "__main__":
-  filepath = "/home/dsu979/Downloads/tn-Migrate1.json"
-  output = "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/inventory.yaml"
-  Static_Port_Binding(filepath,output)
-
-
+    main('/home/dsu979/Downloads/tn-Datacenter1.json')

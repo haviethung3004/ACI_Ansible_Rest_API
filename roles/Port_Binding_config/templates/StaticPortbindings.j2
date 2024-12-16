@@ -25,10 +25,11 @@
                       "descr": "",
                       "encap": "{{ vlan.vlan }}",
                       "instrImedcy": "lazy",
-                      "mode": "regular",
+                      "mode": "{{ vlan.mode | default('regular') }}",
                       "primaryEncap": "unknown",
                       "tDn": "{{ port }}",
-                      "userdom": ":all:"
+                      "userdom": ":all:",
+                      "status": "{{ vlan.status | default('created,modified') }}"
                     }
                   }
                 }
