@@ -171,7 +171,10 @@ def Static_Port_Binding(filepath, output_file):
     dump_to_yaml(inventory, output_file)
 
 
-
+def L3Outs(filepath, output_file):
+    with open(filepath, mode='r') as f:
+        reader = json.load(f)
+        
 
 
 
