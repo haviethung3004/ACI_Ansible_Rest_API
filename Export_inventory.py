@@ -96,17 +96,13 @@ def Static_Port_Binding(filepath, output_file):
           if 'fvAEPg' in item:
             epg = item['fvAEPg']
             epg_name = epg['attributes']['name']
-            print(epg_name)
             
             # Extract VLANs and Ports using the "encap" field for VLAN information
             vlans = {}
             for child in epg.get('children', []):
                 if 'fvRsPathAtt' in child:
                     port_info = child['fvRsPathAtt']['attributes']['tDn']
-                    vlan_id = child['fvRsPathAtt']['attributes']['encap']  # Extract the VLAN number
-                    
-                    # Clean up the port info and ensure correct formatting for port names
-                    # port_name = port_info.split('/')[-1]  # Extract just the interface name, e.g., "eth1/1"
+                    vlan_id = child['fvRsPathAtt']['attributes']['encap']
                     
                     if vlan_id not in vlans:
                         vlans[vlan_id] = []
@@ -119,13 +115,12 @@ def Static_Port_Binding(filepath, output_file):
             })
     # Create the output dictionary
     inventory = {
+        'AP': 'Input your application profile',
         'epgs': epgs
     }
   # Output the final YAML file
   with open(output_file, 'w') as yaml_file:
       yaml.dump(inventory, yaml_file, default_flow_style=False, sort_keys=False)
-
-
 
 
 if __name__ == "__main__":
