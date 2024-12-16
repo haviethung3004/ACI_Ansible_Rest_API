@@ -1,38 +1,72 @@
-Role Name
-=========
+# Static Port Binding Role - Inventory
 
-A brief description of the role goes here.
+## Overview
+This role processes Static Port Binding inventory and outputs it in YAML format for use in Jinja templates. The inventory structure provides details about the static port bindings, including VLANs and ports within the tenant and access point.
 
-Requirements
-------------
+### Default Values
+- **tenant_name**: If no tenant name is found, it will default to "Please input your correct tenant name".
+- **ap_name**: If no AP (Access Point) name is found, it will default to "Please input your correct AP name".
+- **status**: The default status for all entries is "created,modified". If something is to be deleted, you can manually change the status to "deleted".
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+### Jinja Template Customization
+The default values can be changed in the Jinja template, allowing for more dynamic configurations.
 
-Role Variables
---------------
+## Structure of the Inventory
+The inventory contains the following structure:
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+```yaml
+tenant_name: Please input your correct tenant name
+ap_name: Please input your correct AP name
+epgs:
+  - name: <EPG Name>
+    vlans:
+      - vlan: <VLAN ID>
+        ports:
+          - <port1>
+          - <port2>
+          - <port3>
+```
 
-Dependencies
-------------
+- **tenant_name**: The name of the tenant.
+- **ap_name**: The name of the access point.
+- **epgs**: A list of EPGs (Endpoint Groups) within the tenant, each containing the following details:
+  - **name**: The name of the EPG.
+  - **vlans**: A list of VLANs associated with the EPG, including the following details:
+    - **vlan**: The VLAN ID.
+    - **ports**: A list of ports associated with the VLAN.
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+## Status Field
+The **status** field is essential for indicating the action taken for the inventory item:
+- **created,modified**: The default value for newly created or modified entries.
+- **deleted**: To be manually updated if an item is to be deleted.
 
-Example Playbook
-----------------
+## Usage
+To use this role, input a valid JSON file containing the necessary data. The role processes the data and generates a corresponding YAML file for use in Jinja templates.
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+### Example:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```bash
+ansible-playbook -i inventory.yaml static_port_binding.yml
+```
 
-License
--------
+In the Jinja template, you can access values like:
 
-BSD
+```jinja
+{{ tenant_name }}
+{{ ap_name }}
+{% for epg in epgs %}
+  {{ epg.name }}
+  {% for vlan in epg.vlans %}
+    VLAN ID: {{ vlan.vlan }}
+    Ports:
+    {% for port in vlan.ports %}
+      - {{ port }}
+    {% endfor %}
+  {% endfor %}
+{% endfor %}
+```
 
-Author Information
-------------------
+## Conclusion
+This role provides a structured approach to managing Static Port Binding inventory in a tenant-based environment. The inventory can be easily customized in Jinja templates to suit specific requirements.
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+
