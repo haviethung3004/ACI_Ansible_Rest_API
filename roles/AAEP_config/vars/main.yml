@@ -5,9 +5,6 @@
 
 
 # Override authorization settings if needed
-aci_host: "192.168.1.250"
-aci_username: "admin"
-aci_password: "12345678"
 
 
 # vars/main.yml inside aaep_binding role

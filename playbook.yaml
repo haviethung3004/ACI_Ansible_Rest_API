@@ -1,11 +1,6 @@
 ---
 #Here is the main playbook file, please select option what you want to configure here
-- name: Create Or Update AAEP
-  hosts: localhost
-  gather_facts: false
-  vars_files: '/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/AAEP_config/tests/inventory.yaml'
-  roles:
-    - AAEP_config
+#If you use this file as provisioning work, please followinmg flow tenant -> AAEP -> StaticBinding
 
 - name: Create Or Update Tenant
   hosts: localhost
@@ -13,3 +8,18 @@
   vars_files: '/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/Tenant_config/tests/inventory.yaml'
   roles:
     - Tenant_config
+
+
+- name: Create Or Update AAEP
+  hosts: localhost
+  gather_facts: false
+  vars_files: '/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/AAEP_config/tests/inventory.yaml'
+  roles:
+    - AAEP_config
+
+- name: Create Or Update Static Port
+  hosts: localhost
+  gather_facts: false
+  vars_files: '/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/Port_Binding_config/tests/inventory.yaml'
+  roles:
+    - Port_Binding_config

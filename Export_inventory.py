@@ -1,4 +1,4 @@
-#Import json module
+#Import json and yaml module
 import json
 import yaml
 
@@ -115,7 +115,7 @@ def Static_Port_Binding(filepath, output_file):
             })
     # Create the output dictionary
     inventory = {
-        'AP': 'Input your application profile',
+        'ap_name': 'Input your application profile',
         'epgs': epgs
     }
   # Output the final YAML file

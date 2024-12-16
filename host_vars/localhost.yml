@@ -1,0 +1,5 @@
+---
+aci_host: "192.168.1.250"
+aci_username: "admin"
+aci_password: "12345678"
+

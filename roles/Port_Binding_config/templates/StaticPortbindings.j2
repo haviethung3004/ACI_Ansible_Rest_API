@@ -1,0 +1,47 @@
+{
+  "payload": {
+    "fvAp": {
+      "attributes": {
+        "name": "{{ ap_name }}",
+        "dn": "uni/tn-{{ tenant_name }}/ap-{{ ap_name }}",
+        "status": "modified"
+      },
+      "children": [
+        {% for epg in epgs %}
+        {
+          "fvAEPg": {
+            "attributes": {
+              "name": "{{ epg.name }}",
+              "dn": "uni/tn-{{ tenant_name }}/ap-{{ ap_name }}/epg-{{ epg.name }}",
+              "status": "created,modified"
+            },
+            "children": [
+            {% for vlan in epg.vlans %}  
+              {% for port in vlan.ports %}
+                {
+                  "fvRsPathAtt": {
+                    "attributes": {
+                      "annotation": "",
+                      "descr": "",
+                      "encap": "{{ vlan.vlan }}",
+                      "instrImedcy": "lazy",
+                      "mode": "regular",
+                      "primaryEncap": "unknown",
+                      "tDn": "{{ port }}",
+                      "userdom": ":all:"
+                    }
+                  }
+                }
+              {% if not loop.last %},{% endif %}
+              {% endfor %}
+            {% endfor %}
+            ]
+
+          }
+        }
+        {% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+  }
+}

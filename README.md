@@ -1,4 +1,3 @@
-
 # APIC Automation with Ansible
 
 This repository contains Ansible playbooks and roles for automating Cisco APIC (Application Policy Infrastructure Controller) configurations using the REST API and Bulk ACI. The code provides a structured approach to configure ACI policies, manage tenants, bridge domains, application profiles, and more. The repository is designed to streamline the process of managing ACI infrastructure with the power of automation.
@@ -38,7 +37,8 @@ The directory structure is as follows:
 ```
 .
 ├── Export_inventory.py      # Python script for exporting inventory data
-├── inventory.yaml           # YAML file containing Ansible inventory for APIC
+├── host_vars                # Directory containing host variable files
+│   └── localhost.yml        # Host variable file for localhost
 ├── playbook.yaml            # Main Ansible playbook for orchestrating tasks
 ├── README.md                # Project documentation
 └── roles                    # Ansible roles for different ACI configurations
@@ -48,7 +48,7 @@ The directory structure is as follows:
 ```
 
 - **Export_inventory.py**: A Python script to export the APIC inventory into a format compatible with Ansible.
-- **inventory.yaml**: The Ansible inventory file containing the details of your APIC devices.
+- **host_vars/**: Directory containing variable files for different hosts, with `localhost.yml` being the configuration file for localhost.
 - **playbook.yaml**: Main playbook that includes all the tasks to be automated.
 - **roles/**: Contains reusable roles for different ACI configuration tasks:
     - **AAEP_config**: Configures AAEP (Attachable Access Entity Profile) settings.
@@ -77,7 +77,7 @@ The directory structure is as follows:
 
 3. **Configure Inventory**:
 
-   Edit the `inventory.yaml` file to include your APIC credentials and any additional configuration required for your environment.
+   Edit the `host_vars/localhost.yml` file to include your APIC credentials and any additional configuration required for your environment.
 
 4. **Configure Variables**:
 
@@ -88,7 +88,7 @@ The directory structure is as follows:
 Once the setup is complete, you can use the following command to run the playbook:
 
 ```bash
-ansible-playbook playbook.yaml -i inventory.yaml
+ansible-playbook playbook.yaml -i host_vars/localhost.yml
 ```
 
 This will execute the playbook, applying the configurations defined in the respective roles.
@@ -98,7 +98,7 @@ This will execute the playbook, applying the configurations defined in the respe
 To apply tenant configurations, you can run the playbook with a specific tag:
 
 ```bash
-ansible-playbook playbook.yaml -i inventory.yaml --tags "tenant"
+ansible-playbook playbook.yaml -i host_vars/localhost.yml --tags "tenant"
 ```
 
 ## Roles Overview
@@ -135,11 +135,8 @@ ansible-playbook roles/AAEP_config/tests/test.yml
 
 You can extend these tests to match your own environment.
 
-## Contributing
-
-We welcome contributions! If you'd like to contribute to the project, please fork the repository and submit a pull request. Before contributing, ensure that your code adheres to the existing structure and passes all tests.
-
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
+
 

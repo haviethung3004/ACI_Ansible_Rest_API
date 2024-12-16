@@ -2,14 +2,7 @@
 # vars file for roles/Tenant_config
 # vars file for aaep_binding
 # aaep_binding/vars/main.yml
-#
-
-
 # Override authorization settings if needed
-aci_host: "192.168.1.250"
-aci_username: "admin"
-aci_password: "12345678"
-
 
 # vars/main.yml inside aaep_binding role
 template_file: "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/Tenant_config/templates/Tenant_Template.j2"   # Path to your Jinja2 template

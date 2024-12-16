@@ -1,4 +1,5 @@
-AP: Input your application profile
+tenant_name: Testing_Ansible
+ap_name: Ansible_AP
 epgs:
 - name: EPG_748
   vlans:

@@ -1,2 +1,47 @@
 ---
 # tasks file for roles/Port_Binding_config
+- name: Render Tenant Template
+  template:
+    src: "{{ template_file }}"  # Path to your Jinja2 template
+    dest: "{{ output_file }}"  # Rendered JSON output
+
+- name: Login to APIC and get authentication cookie
+  uri:
+    url: "https://{{ aci_host }}/api/aaaLogin.json"
+    method: POST
+    headers:
+      Content-Type: "application/json"
+    body: |
+      {
+        "aaaUser": {
+          "attributes": {
+            "name": "{{ aci_username }}",
+            "pwd": "{{ aci_password }}"
+          }
+        }
+      }
+    body_format: json
+    validate_certs: false
+  register: login_result
+
+- name: Extract APIC Cookie
+  set_fact:
+    apic_cookie: "{{ login_result.cookies['APIC-cookie'] }}"
+
+- name: Load and parse POST content 
+  vars: 
+    parsed_file: "{{ lookup('file', output_file) | from_json }}"  # Parse the content and set it to parsed_file
+  ansible.builtin.set_fact:
+    payload: "{{ parsed_file.payload }}"  # Set 'payload' from parsed_file
+
+- name: Create or Update AP and AAEP on APIC
+  uri:
+    url: "https://{{ aci_host }}/api/node/mo/uni/tn-Testing_Ansible/ap-Ansible_AP.json"
+    method: POST
+    headers:
+      Content-Type: "application/json"
+      Cookie: "APIC-Cookie={{ apic_cookie }}"
+    body: "{{ payload }}"
+    body_format: json
+    validate_certs: false
+  register: tenant_result

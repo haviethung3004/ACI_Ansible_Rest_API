@@ -1,2 +1,6 @@
 ---
 # vars file for roles/Port_Binding_config
+
+# vars/main.yml inside aaep_binding role
+template_file: "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/Port_Binding_config/templates/StaticPortbindings.j2"   # Path to your Jinja2 template
+output_file: "/home/dsu979/Desktop/PROJECT/ACI_Migration/Ansible_ACI/roles/AAEP_config/templates/StaticPortbindings_Rendered.j2"  # Path where the rendered JSON will be saved
