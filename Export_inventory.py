@@ -171,10 +171,69 @@ def Static_Port_Binding(filepath, output_file):
     dump_to_yaml(inventory, output_file)
 
 
-def L3Outs(filepath, output_file):
+def L3Out(filepath, output_file):
+    """Process L3Out OSPF inventory and output to YAML."""
     with open(filepath, mode='r') as f:
         reader = json.load(f)
-        
+        l3out_info = []
+        router_info  = []
+
+        # Initialize default values for L3Out and VRF
+        tenant_name = "Please input your correct tenant name"
+        vrf_name = "Please input your correct vrf name"
+        # Extract OSPF details from 'ospfExtP'
+        ospf_info = {}
+        # Extract L3Out details from the 'fvTenant' → 'children' → 'l3extOut' section
+        for item in reader['imdata'][0].get('fvTenant', {}).get('children', []):
+            if 'l3extOut' in item:
+                l3out = item['l3extOut']['attributes']
+                l3out_name = l3out.get('name', 'Unknown')
+                description = l3out.get('descr', 'No description')
+
+                # Extract VRF from 'l3extRsEctx' (tnFvCtxName)
+                for child in item.get('l3extOut', {}).get('children', []):
+                    if 'l3extRsEctx' in child:
+                        vrf_name = child['l3extRsEctx']['attributes'].get('tnFvCtxName', 'Unknown VRF')
+                    if 'ospfExtP' in child:
+                        ospf_info = {
+                            'area_id': child['ospfExtP']['attributes'].get('areaId', 'Unknown'),
+                            'area_type': child['ospfExtP']['attributes'].get('areaType', 'Unknown'),
+                            'area_cost': child['ospfExtP']['attributes'].get('areaCost', 'Unknown'),
+                            'area_ctrl': child['ospfExtP']['attributes'].get('areaCtrl', 'Unknown'),
+                            'description': child['ospfExtP']['attributes'].get('descr', 'No description')
+                        }
+                    if 'l3extLNodeP' in child:
+                        for sub_child in child.get('l3extLNodeP', {}).get('children', []):
+                            if 'l3extRsNodeL3OutAtt' in sub_child:
+                                # Extract rtrId, rtrIdLoopBack, tDn
+                                router_info.append({
+                                    'rtrId': sub_child['l3extRsNodeL3OutAtt']['attributes'].get('rtrId', 'Unknown'),
+                                    'rtrIdLoopBack': sub_child['l3extRsNodeL3OutAtt']['attributes'].get('rtrIdLoopBack', 'Unknown'),
+                                    'tDn': sub_child['l3extRsNodeL3OutAtt']['attributes'].get('tDn', 'Unknown')
+                                })
+
+
+                # Add extracted data to the list
+                l3out_info.append({
+                    'l3out_name': l3out_name,
+                    'description': description,
+                    'vrf_name': vrf_name,
+                    'ospf_info': ospf_info,
+                    'router_info': router_info,
+                })
+
+    # Prepare the inventory format for Jinja template or other uses
+    inventory = {
+        'l3out_info': l3out_info
+    }
+
+    # Output the inventory format to YAML file
+    dump_to_yaml(inventory, output_file)
+
+# Example usage of the function:
+# L3Out_ospf_Config('/mnt/data/tn-Datacenter1.json', '/mnt/data/l3out_ospf_inventory.yaml')
+
+
 
 
 
@@ -192,6 +251,9 @@ def main(input_file_path):
     Static_Port_Binding_output = 'roles/Port_Binding_config/tests/inventory.yaml'
     Static_Port_Binding(input_file_path, Static_Port_Binding_output)
 
+    # Export Iventory of L3Out
+    L3Outs_output = 'roles/L3Out/tests/inventory.yaml'
+    L3Out(input_file_path, L3Outs_output)
 
 if __name__ == "__main__":
     main('/home/dsu979/Downloads/tn-Datacenter1.json')

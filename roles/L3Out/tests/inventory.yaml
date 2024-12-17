@@ -1,0 +1,24 @@
+l3out_info:
+- l3out_name: FRW18_4000
+  description: ''
+  vrf_name: VRF_intern
+  ospf_info:
+    area_id: 0.0.0.200
+    area_type: nssa
+    area_cost: '1'
+    area_ctrl: redistribute,summary
+    description: TT&T
+  router_info:
+  - rtrId: 88.88.0.223
+    rtrIdLoopBack: 'yes'
+    tDn: topology/pod-2/node-223
+  - rtrId: 88.88.0.123
+    rtrIdLoopBack: 'no'
+    tDn: topology/pod-1/node-123
+  - rtrId: 88.88.0.124
+    rtrIdLoopBack: 'no'
+    tDn: topology/pod-1/node-124
+  - rtrId: 88.88.0.224
+    rtrIdLoopBack: 'yes'
+    tDn: topology/pod-2/node-224
+  status: created,modified
