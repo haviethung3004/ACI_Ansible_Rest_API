@@ -62,7 +62,7 @@ The directory structure is as follows:
    Clone this repository to your local machine using Git:
 
    ```bash
-   git clone https://github.com/yourusername/aci-automation.git
+   git clone https://github.com/haviethung3004/ACI_Ansible_Rest_API.git
    cd aci-automation
    ```
 
